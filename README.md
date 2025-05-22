@@ -12,7 +12,7 @@ Este projeto permite analisar uma lista de links (em um arquivo Excel) e verific
   - Ou apenas o **HTML da página**
 - Extrai o texto do conteúdo e verifica a presença de **palavras-chave** definidas pelo usuário.
 - Gera um novo arquivo `.xlsx` com os links que contêm **todos** os termos buscados.
-- Exibe no terminal:
+- Exibe no terminal e no arquivo de saída:
   - Tempo de execução por link
   - Origem do conteúdo analisado
   - Palavras-chave encontradas
@@ -23,6 +23,7 @@ Este projeto permite analisar uma lista de links (em um arquivo Excel) e verific
 
 - `main.py` → Script principal. Responsável por coletar input do usuário e controlar o fluxo da aplicação.
 - `verificador.py` → Módulo que contém a lógica para acessar os links e extrair o conteúdo.
+- `requirements.txt` → Pacotes usados na aplicação.
 - `Arquivo inserido com links` → Arquivo de entrada com uma coluna `link` contendo os URLs a serem analisados.
 - `artigos_com_temas_correlatos.xlsx` → Arquivo de saída com os resultados.
 
@@ -35,4 +36,4 @@ Este projeto permite analisar uma lista de links (em um arquivo Excel) e verific
 Instale as bibliotecas necessárias:
 
 ```bash
-pip install pandas requests beautifulsoup4 PyMuPDF openpyxl
+pip install -r requirements.txt
