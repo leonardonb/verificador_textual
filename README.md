@@ -31,9 +31,11 @@ Este projeto permite analisar uma lista de links (em um arquivo Excel) e verific
 
 ## ▶️ Como usar
 
-### 1. 📥 Pré-requisitos
+### 1. 📥 Pré-requisitos e uso
 
-Instale as bibliotecas necessárias:
+Instale as bibliotecas necessárias e rode o app no terminal:
 
 ```bash
 pip install -r requirements.txt
+
+python main.py
