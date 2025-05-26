@@ -1,6 +1,9 @@
-pandas
-requests
-beautifulsoup4
+flask~=3.0.3
+pandas~=2.2.3
+requests~=2.32.3
+beautifulsoup4~=4.13.0b2
 PyMuPDF
 openpyxl
 xlsxwriter
+graphviz
+prisma~=0.15.0

@@ -1,8 +1,18 @@
 import requests
 from bs4 import BeautifulSoup
-import fitz
+import fitz  # PyMuPDF
 import time
 from urllib.parse import urljoin
+import unicodedata
+
+def remover_acentos(txt):
+    return ''.join(
+        c for c in unicodedata.normalize('NFD', txt)
+        if unicodedata.category(c) != 'Mn'
+    )
+
+def normalizar(texto):
+    return remover_acentos(texto).lower()
 
 def extrair_texto_pdf(url):
     try:
@@ -13,7 +23,7 @@ def extrair_texto_pdf(url):
             texto = ""
             for pagina in doc:
                 texto += pagina.get_text()
-        return texto.lower()
+        return texto
     except Exception as e:
         print(f"Erro ao extrair PDF: {e}")
         return ""
@@ -50,16 +60,17 @@ def verificar_link(url, termos):
                 origem = "PDF embutido"
             else:
                 print(f"[{url}] → Nenhum PDF encontrado. Usando HTML.")
-                texto = soup.get_text().lower()
+                texto = soup.get_text()
                 origem = "HTML"
 
-        encontrados = [termo for termo in termos if termo in texto]
+        texto_normalizado = normalizar(texto)
+        encontrados = [termo for termo in termos if normalizar(termo) in texto_normalizado]
         resultado = "TEM" if len(encontrados) == len(termos) else "NÃO TEM"
-
-        print(f"→ Origem do conteúdo: {origem}")
-        print(f"→ {resultado} todos os temas correlatos")
-        print(f"→ Encontradas: {', '.join(encontrados) if encontrados else 'nenhuma palavra-chave'}")
         duracao = time.time() - inicio
+
+        print(f"→ Origem: {origem}")
+        print(f"→ {resultado} todos os temas correlatos")
+        print(f"→ Encontrados: {', '.join(encontrados) if encontrados else 'nenhuma palavra-chave'}")
         print(f"→ Tempo: {duracao:.2f}s\n")
 
         return origem, encontrados, duracao

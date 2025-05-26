@@ -1,39 +1,102 @@
-# 🔍 Verificador de Conteúdo Textual em Links com PDF e HTML
+# 🔍 Verificador de Conteúdo com Metodologia PRISMA
 
-Este projeto permite analisar uma lista de links (em um arquivo Excel) e verificar se eles contêm um conjunto de palavras-chave fornecidas pelo usuário. Ele é capaz de ler tanto o conteúdo HTML da página quanto PDFs vinculados ou diretamente acessados.
+Este projeto permite analisar uma lista de links (em um arquivo Excel) e verificar se eles contêm um conjunto de palavras-chave fornecidas pelo usuário. Utiliza a metodologia PRISMA para gerar relatórios e fluxogramas explicando o processo de seleção dos artigos.
 
 ---
 
 ## 🧠 Funcionalidades
 
-- Detecta automaticamente se o link aponta para:
-  - Um **PDF direto**
-  - Um **PDF embutido na página HTML**
-  - Ou apenas o **HTML da página**
-- Extrai o texto do conteúdo e verifica a presença de **palavras-chave** definidas pelo usuário.
-- Gera um novo arquivo `.xlsx` com os links que contêm **todos** os termos buscados.
-- Exibe no terminal e no arquivo de saída:
-  - Tempo de execução por link
-  - Origem do conteúdo analisado
-  - Palavras-chave encontradas
+- Verificação de links em HTML e PDF
+- Extração automática de palavras-chave
+- Geração de relatórios:
+  - Excel com formatação condicional
+  - JSON e CSV com resumo PRISMA
+  - Fluxograma PRISMA em PNG
+- Interface Web (via Flask)
+- Execução via terminal (modo texto ou interface local)
+- Execução via Docker
 
 ---
 
-## 📁 Estrutura dos Arquivos
+## 📁 Estrutura do Projeto
 
-- `main.py` → Script principal. Responsável por coletar input do usuário e controlar o fluxo da aplicação.
-- `verificador.py` → Módulo que contém a lógica para acessar os links e extrair o conteúdo.
-- `requirements.txt` → Pacotes usados na aplicação.
-- `Arquivo inserido com links` → Arquivo de entrada com uma coluna `link` contendo os URLs a serem analisados.
-- `artigos_com_temas_correlatos.xlsx` → Arquivo de saída com os resultados.
+```
+verificador-prisma/
+├── app.py                 # Interface Web Flask
+├── main.py                # Executável com menu terminal
+├── verificador.py         # Lógica de verificação
+├── prisma.py              # Lógica PRISMA
+├── requirements.txt       # Dependências Python
+├── Dockerfile             # Container Docker
+├── templates/
+│   └── index.html         # Interface HTML da aplicação web
+└── static/                # Arquivos gerados (resultados)
+```
 
 ---
 
-## ▶️ Como usar
+## ▶️ Como usar via Terminal
 
-### 1. 📥 Pré-requisitos
-
-Instale as bibliotecas necessárias:
+### 1. Instale as dependências
 
 ```bash
 pip install -r requirements.txt
+```
+
+### 2. Execute o script principal
+
+```bash
+python main.py
+```
+
+### 3. Escolha o modo de uso:
+
+- `[1]` Executar em **modo terminal**: você seleciona o arquivo e insere palavras-chave.
+- `[2]` Executar **interface web local com Flask**: será aberta automaticamente no navegador em http://localhost:5000
+
+---
+
+## 🐳 Como rodar via Docker
+
+### 1. Build da imagem
+
+```bash
+docker build -t verificador-flask .
+```
+
+### 2. Executar o container
+
+```bash
+docker run -p 5000:5000 verificador-flask
+```
+
+### 3. Acessar a aplicação
+
+[http://localhost:5000](http://localhost:5000)
+
+---
+
+## 📦 Funcionalidade da interface Flask
+
+- Upload de planilha `.xlsx` com links
+- Campo para palavras-chave separadas por vírgulas
+- Geração automática dos arquivos para download:
+  - `resultado_formatado.xlsx`
+  - `relatorio_prisma.json`
+  - `relatorio_prisma.csv`
+  - `fluxograma_prisma.png`
+
+---
+
+## ✅ Requisitos
+
+- Python 3.10+
+- Navegador moderno (Chrome, Firefox, etc.)
+- Docker (opcional, para rodar como container)
+
+---
+
+## 📄 Licença
+
+Este projeto é de uso acadêmico e educativo. Fique à vontade para adaptar às suas necessidades.
+
