@@ -1,6 +1,8 @@
 # 🔎 Verificador de Links com Metodologia PRISMA
 
-Este projeto realiza a **verificação de links acadêmicos** com base em **termos-chave definidos pelo usuário**, buscando os termos no conteúdo dos links (HTML ou PDF), aplicando a **metodologia PRISMA** para sumarização dos resultados. A aplicação pode ser executada de três formas:
+Este projeto realiza a **verificação de links acadêmicos** com base em **termos-chave definidos pelo usuário**, buscando os termos no conteúdo dos links (HTML ou PDF), aplicando a **metodologia PRISMA** para sumarização dos resultados.
+
+A aplicação pode ser executada de duas formas:
 
 - ✅ via **terminal interativo**
 - ✅ via **interface web com Flask**
@@ -9,49 +11,63 @@ Este projeto realiza a **verificação de links acadêmicos** com base em **term
 
 ## 🧰 Requisitos
 
+Instale todas as dependências com:
+
 ```bash
 pip install -r requirements.txt
 ```
 
 ---
 
-## 🚀 Modos de Execução
+## 🚀 Como Utilizar
 
-### 📂 Terminal Interativo
+Ao executar o script principal (`main.py`), você será questionado sobre:
 
-Execute o script principal:
+1. **Qual interface deseja usar**:
+    - Terminal (modo 1)
+    - Interface Web com Flask (modo 2)
+
+2. **Qual a origem dos links**:
+    - Enviar um **arquivo Excel** com os links (coluna `link`)
+    - Ou realizar uma **busca automática** nos portais **SciELO** e **Google Scholar** com os termos-chave
+
+Após a verificação, os relatórios serão gerados automaticamente.
+
+---
+
+## 📂 Execução via Terminal
 
 ```bash
 python main.py
 ```
 
-Você poderá:
-- Enviar um arquivo Excel contendo links (agora com seleção por **caixa de diálogo**),
-- Ou realizar buscas em plataformas acadêmicas (SciELO e Google Scholar).
+- ✅ Permite selecionar o Excel via **caixa de diálogo**
+- ✅ Ou realizar a **busca automática** nas plataformas acadêmicas
+- ✅ Gera o resultado da verificação e permite escolher o local para salvar
 
 ---
 
-### 2. 🌐 Interface Web com Flask
+## 🌐 Execução via Interface Web (Flask)
 
-Inicie o servidor web:
+1. Execute o script e escolha a **opção 2** no terminal:
 
 ```bash
-Escolher a opção 2
+python main.py
 ```
 
-Abra no navegador:  
-`http://127.0.0.1:5000`
+2. O navegador será aberto automaticamente em:  
+   `http://127.0.0.1:5000`
 
-Você poderá:
-- Fazer upload de um arquivo Excel,
-- Inserir termos-chave,
-- Baixar os arquivos gerados.
+3. Na interface web, você poderá:
+
+- Inserir os **termos-chave** separados por vírgulas
+- Escolher entre **enviar um arquivo Excel** ou realizar a **busca automática**
+- Visualizar uma **barra de progresso**
+- Baixar os arquivos gerados
 
 ---
 
-## 🐳 Docker
-
-Para rodar com Docker:
+## 🐳 Docker (Opcional)
 
 ```bash
 docker build -t verificador_textual .
@@ -70,7 +86,9 @@ verificador_textual/
 ├── prisma.py             # Geração de relatórios e fluxograma PRISMA
 ├── busca.py              # Buscas reais no SciELO e Google Scholar
 ├── templates/
-│   └── index.html        # Interface HTML com barra de progresso
+│   └── index.html        # Interface HTML com Bootstrap e barra de progresso
+├── static/
+│   └── arquivos gerados (Excel, JSON, CSV, PNG)
 ├── Dockerfile            # Containerização da aplicação Flask
 ├── requirements.txt      # Dependências do projeto
 └── README.md             # Instruções
@@ -80,24 +98,25 @@ verificador_textual/
 
 ## 🧪 Metodologia PRISMA
 
-Este projeto implementa um resumo dos dados segundo os princípios do PRISMA:
+Este projeto implementa um resumo automatizado com base na metodologia PRISMA, incluindo:
 
-- Identificados
-- Avaliados
-- Incluídos
-- Excluídos
+- ✅ Identificados
+- ✅ Avaliados
+- ✅ Incluídos
+- ✅ Excluídos
 
-Gera automaticamente:
+Arquivos gerados:
+
 - `relatorio_prisma.json`
 - `relatorio_prisma.csv`
 - `fluxograma_prisma.png`
 
 ---
 
-## 🧪 Fontes de Pesquisa Suportadas
+## 📤 Fontes de Pesquisa Suportadas
 
-- Upload de planilha `.xlsx` com coluna `link`
-- (Opcional) Busca automatizada em **SciELO** e **Google Scholar** com `busca.py`
+- ✅ Upload de planilha `.xlsx` com coluna `link`
+- ✅ Busca automatizada em **SciELO** e **Google Scholar**
 
 ---
 
@@ -107,34 +126,24 @@ Gera automaticamente:
 flask
 pandas
 requests
-beautifulsoup
+beautifulsoup4
 PyMuPDF
 openpyxl
 xlsxwriter
 graphviz
 lxml
 scholarly
-prisma
 ```
 
 ---
+
 ## 📌 Observações
 
-- Para o Google Scholar, usamos a biblioteca `scholarly`.
-- O SciELO é acessado por scraping.
-- O projeto utiliza `PyMuPDF` para leitura de PDFs.
-- Certifique-se de ter o `graphviz` instalado e configurado no sistema para gerar os fluxogramas.
-
----
-
-## 📤 Exemplo de Execução
-
-```bash
-python main.py
-# Escolha: 1
-# → Escolha os termos
-# → Selecione o arquivo Excel pela janela
-```
+- Para o Google Scholar, utilizamos a biblioteca `scholarly`.
+- O SciELO é acessado via scraping com `BeautifulSoup`.
+- Os PDFs são lidos com `PyMuPDF`.
+- Para gerar os fluxogramas PRISMA, é necessário ter o `Graphviz` instalado no sistema.
+- Os arquivos gerados são salvos na pasta `static/`.
 
 ---
 
