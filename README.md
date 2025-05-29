@@ -1,102 +1,144 @@
-# 🔍 Verificador de Conteúdo com Metodologia PRISMA
+# 🔎 Verificador de Links com Metodologia PRISMA
 
-Este projeto permite analisar uma lista de links (em um arquivo Excel) e verificar se eles contêm um conjunto de palavras-chave fornecidas pelo usuário. Utiliza a metodologia PRISMA para gerar relatórios e fluxogramas explicando o processo de seleção dos artigos.
+Este projeto realiza a **verificação de links acadêmicos** com base em **termos-chave definidos pelo usuário**, buscando os termos no conteúdo dos links (HTML ou PDF), aplicando a **metodologia PRISMA** para sumarização dos resultados. A aplicação pode ser executada de três formas:
 
----
-
-## 🧠 Funcionalidades
-
-- Verificação de links em HTML e PDF
-- Extração automática de palavras-chave
-- Geração de relatórios:
-  - Excel com formatação condicional
-  - JSON e CSV com resumo PRISMA
-  - Fluxograma PRISMA em PNG
-- Interface Web (via Flask)
-- Execução via terminal (modo texto ou interface local)
-- Execução via Docker
+- ✅ via **terminal interativo**
+- ✅ via **interface web com Flask**
 
 ---
 
-## 📁 Estrutura do Projeto
-
-```
-verificador-prisma/
-├── app.py                 # Interface Web Flask
-├── main.py                # Executável com menu terminal
-├── verificador.py         # Lógica de verificação
-├── prisma.py              # Lógica PRISMA
-├── requirements.txt       # Dependências Python
-├── Dockerfile             # Container Docker
-├── templates/
-│   └── index.html         # Interface HTML da aplicação web
-└── static/                # Arquivos gerados (resultados)
-```
-
----
-
-## ▶️ Como usar via Terminal
-
-### 1. Instale as dependências
+## 🧰 Requisitos
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### 2. Execute o script principal
+---
+
+## 🚀 Modos de Execução
+
+### 📂 Terminal Interativo
+
+Execute o script principal:
 
 ```bash
 python main.py
 ```
 
-### 3. Escolha o modo de uso:
-
-- `[1]` Executar em **modo terminal**: você seleciona o arquivo e insere palavras-chave.
-- `[2]` Executar **interface web local com Flask**: será aberta automaticamente no navegador em http://localhost:5000
+Você poderá:
+- Enviar um arquivo Excel contendo links (agora com seleção por **caixa de diálogo**),
+- Ou realizar buscas em plataformas acadêmicas (SciELO e Google Scholar).
 
 ---
 
-## 🐳 Como rodar via Docker
+### 2. 🌐 Interface Web com Flask
 
-### 1. Build da imagem
+Inicie o servidor web:
 
 ```bash
-docker build -t verificador-flask .
+Escolher a opção 2
 ```
 
-### 2. Executar o container
+Abra no navegador:  
+`http://127.0.0.1:5000`
+
+Você poderá:
+- Fazer upload de um arquivo Excel,
+- Inserir termos-chave,
+- Baixar os arquivos gerados.
+
+---
+
+## 🐳 Docker
+
+Para rodar com Docker:
 
 ```bash
-docker run -p 5000:5000 verificador-flask
+docker build -t verificador_textual .
+docker run -p 5000:5000 verificador_textual
 ```
 
-### 3. Acessar a aplicação
+---
 
-[http://localhost:5000](http://localhost:5000)
+## 📄 Estrutura do Projeto
+
+```
+verificador_textual/
+├── app.py                # Interface web com Flask
+├── main.py               # Execução interativa via terminal
+├── verificador.py        # Lógica de verificação e extração textual
+├── prisma.py             # Geração de relatórios e fluxograma PRISMA
+├── busca.py              # Buscas reais no SciELO e Google Scholar
+├── templates/
+│   └── index.html        # Interface HTML com barra de progresso
+├── Dockerfile            # Containerização da aplicação Flask
+├── requirements.txt      # Dependências do projeto
+└── README.md             # Instruções
+```
 
 ---
 
-## 📦 Funcionalidade da interface Flask
+## 🧪 Metodologia PRISMA
 
-- Upload de planilha `.xlsx` com links
-- Campo para palavras-chave separadas por vírgulas
-- Geração automática dos arquivos para download:
-  - `resultado_formatado.xlsx`
-  - `relatorio_prisma.json`
-  - `relatorio_prisma.csv`
-  - `fluxograma_prisma.png`
+Este projeto implementa um resumo dos dados segundo os princípios do PRISMA:
 
----
+- Identificados
+- Avaliados
+- Incluídos
+- Excluídos
 
-## ✅ Requisitos
-
-- Python 3.10+
-- Navegador moderno (Chrome, Firefox, etc.)
-- Docker (opcional, para rodar como container)
+Gera automaticamente:
+- `relatorio_prisma.json`
+- `relatorio_prisma.csv`
+- `fluxograma_prisma.png`
 
 ---
 
-## 📄 Licença
+## 🧪 Fontes de Pesquisa Suportadas
 
-Este projeto é de uso acadêmico e educativo. Fique à vontade para adaptar às suas necessidades.
+- Upload de planilha `.xlsx` com coluna `link`
+- (Opcional) Busca automatizada em **SciELO** e **Google Scholar** com `busca.py`
 
+---
+
+## 📦 Dependências
+
+```txt
+flask
+pandas
+requests
+beautifulsoup
+PyMuPDF
+openpyxl
+xlsxwriter
+graphviz
+lxml
+scholarly
+prisma
+```
+
+---
+## 📌 Observações
+
+- Para o Google Scholar, usamos a biblioteca `scholarly`.
+- O SciELO é acessado por scraping.
+- O projeto utiliza `PyMuPDF` para leitura de PDFs.
+- Certifique-se de ter o `graphviz` instalado e configurado no sistema para gerar os fluxogramas.
+
+---
+
+## 📤 Exemplo de Execução
+
+```bash
+python main.py
+# Escolha: 1
+# → Escolha os termos
+# → Selecione o arquivo Excel pela janela
+```
+
+---
+
+## 👨‍💻 Autor
+
+**Leonardo Nunes Barros**  
+Projeto voltado para automação de revisões sistemáticas com apoio à metodologia PRISMA.

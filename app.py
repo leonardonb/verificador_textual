@@ -1,72 +1,101 @@
-from flask import Flask, request, render_template, send_from_directory
+from flask import Flask, render_template, request, send_file
 import os
 import pandas as pd
+from werkzeug.utils import secure_filename
 from verificador import verificar_link
 from prisma import gerar_relatorio_prisma, gerar_fluxograma_prisma
+from busca import buscar_em_fontes
 
-UPLOAD_FOLDER = "static"
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+UPLOAD_FOLDER = 'static'
+ALLOWED_EXTENSIONS = {'xlsx'}
 
 app = Flask(__name__)
-app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
-@app.route("/", methods=["GET", "POST"])
+if not os.path.exists(UPLOAD_FOLDER):
+    os.makedirs(UPLOAD_FOLDER)
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+@app.route('/', methods=['GET', 'POST'])
 def index():
-    if request.method == "POST":
-        arquivo = request.files["arquivo"]
-        termos = request.form["termos"]
+    if request.method == 'POST':
+        termos_raw = request.form['termos']
+        termos = [t.strip() for t in termos_raw.split(',') if t.strip()]
+        origem_dados = request.form.get('origem')
+        df = pd.DataFrame()
 
-        if not arquivo or not termos:
-            return "Por favor, envie um arquivo e os termos."
+        if origem_dados == 'arquivo':
+            if 'arquivo' not in request.files:
+                return "Arquivo não enviado"
+            file = request.files['arquivo']
+            if file and allowed_file(file.filename):
+                filename = secure_filename(file.filename)
+                path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                file.save(path)
+                df = pd.read_excel(path)
 
-        caminho = os.path.join(app.config["UPLOAD_FOLDER"], arquivo.filename)
-        arquivo.save(caminho)
+        elif origem_dados == 'busca':
+            df = buscar_em_fontes(termos)
+            if not df.empty:
+                path = os.path.join(app.config['UPLOAD_FOLDER'], 'resultado_busca.xlsx')
+                df.to_excel(path, index=False)
 
-        keywords = [t.strip() for t in termos.split(",")]
-        df = pd.read_excel(caminho)
+        else:
+            return "Erro: Origem dos dados não reconhecida."
 
-        df.attrs["identificados"] = len(df)
-        df = df.dropna(subset=["link"]).reset_index(drop=True)
+        if df.empty or 'link' not in df.columns:
+            return "Nenhum link encontrado nas fontes ou o arquivo não contém coluna 'link'."
+
+        df = df.dropna(subset=['link']).reset_index(drop=True)
 
         resultados_origem, resultados_encontrados, temas_correlatos, tempos = [], [], [], []
-        for link in df["link"]:
-            origem, encontrados, duracao = verificar_link(link, keywords)
+
+        for link in df['link']:
+            origem, encontrados, duracao = verificar_link(link, termos)
             resultados_origem.append(origem)
             resultados_encontrados.append(", ".join(encontrados))
-            temas_correlatos.append("TEM" if len(encontrados) == len(keywords) else "NÃO TEM")
+            temas_correlatos.append("TEM" if len(encontrados) == len(termos) else "NÃO TEM")
             tempos.append(round(duracao, 2))
 
-        df["origem_conteudo"] = resultados_origem
-        df["temas_correlatos"] = temas_correlatos
-        df["termos_encontrados"] = resultados_encontrados
-        df["tempo_execucao_s"] = tempos
+        df['origem_conteudo'] = resultados_origem
+        df['temas_correlatos'] = temas_correlatos
+        df['termos_encontrados'] = resultados_encontrados
+        df['tempo_execucao_s'] = tempos
 
-        saida_excel = os.path.join(UPLOAD_FOLDER, "resultado_formatado.xlsx")
-        with pd.ExcelWriter(saida_excel, engine="xlsxwriter") as writer:
-            df.to_excel(writer, index=False, sheet_name="Resultado")
-            workbook = writer.book
-            worksheet = writer.sheets["Resultado"]
-            formato_ok = workbook.add_format({'bg_color': '#C6EFCE', 'font_color': '#006100'})
-            formato_nok = workbook.add_format({'bg_color': '#FFC7CE', 'font_color': '#9C0006'})
-            col = df.columns.get_loc("temas_correlatos")
-            worksheet.conditional_format(1, col, len(df), col, {'type': 'cell', 'criteria': '==', 'value': '"TEM"', 'format': formato_ok})
-            worksheet.conditional_format(1, col, len(df), col, {'type': 'cell', 'criteria': '==', 'value': '"NÃO TEM"', 'format': formato_nok})
+        output_excel = os.path.join(UPLOAD_FOLDER, 'resultado_formatado.xlsx')
+        df.to_excel(output_excel, index=False)
 
-        resumo = gerar_relatorio_prisma(df, os.path.join(UPLOAD_FOLDER, "relatorio_prisma"))
-        gerar_fluxograma_prisma(resumo, os.path.join(UPLOAD_FOLDER, "fluxograma_prisma"))
+        # Gerar e salvar relatórios PRISMA corretamente
+        resumo = gerar_relatorio_prisma(df)
 
-        return render_template("index.html", arquivos=[
-            "resultado_formatado.xlsx",
-            "relatorio_prisma.json",
-            "relatorio_prisma.csv",
-            "fluxograma_prisma.png"
+        json_path = os.path.join(UPLOAD_FOLDER, 'relatorio_prisma.json')
+        csv_path = os.path.join(UPLOAD_FOLDER, 'relatorio_prisma.csv')
+        fluxograma_path = os.path.join(UPLOAD_FOLDER, 'fluxograma_prisma.png')
+
+        with open(json_path, 'w', encoding='utf-8') as f_json:
+            import json
+            json.dump(resumo, f_json, indent=4, ensure_ascii=False)
+
+        pd.DataFrame([resumo]).to_csv(csv_path, index=False)
+
+        gerar_fluxograma_prisma(resumo, fluxograma_path)
+
+        return render_template('index.html', pronto=True, arquivos=[
+            ('Resultado Formatado', output_excel),
+            ('Relatório JSON', json_path),
+            ('Relatório CSV', csv_path),
+            ('Fluxograma PRISMA', fluxograma_path)
         ])
 
-    return render_template("index.html", arquivos=[])
+    return render_template('index.html', pronto=False)
 
-@app.route("/download/<path:filename>")
-def download(filename):
-    return send_from_directory(app.config["UPLOAD_FOLDER"], filename, as_attachment=True)
+@app.route('/download/<path:filename>')
+def download_file(filename):
+    return send_file(filename, as_attachment=True)
 
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)
+def iniciar_flask():
+    import webbrowser
+    webbrowser.open("http://127.0.0.1:5000")
+    app.run(debug=False)

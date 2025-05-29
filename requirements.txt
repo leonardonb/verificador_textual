@@ -6,4 +6,6 @@ PyMuPDF
 openpyxl
 xlsxwriter
 graphviz
+lxml
+scholarly
 prisma~=0.15.0
