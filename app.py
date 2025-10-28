@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, send_file
+from flask import Flask, render_template, request, send_file, abort
 import os
 import pandas as pd
 from werkzeug.utils import secure_filename
@@ -93,7 +93,16 @@ def index():
 
 @app.route('/download/<path:filename>')
 def download_file(filename):
-    return send_file(filename, as_attachment=True)
+    # Prevent directory traversal by ensuring the file resides in UPLOAD_FOLDER
+    full_path = os.path.abspath(filename)
+    base_dir = os.path.abspath(app.config['UPLOAD_FOLDER'])
+
+    if not full_path.startswith(base_dir):
+        abort(403)
+    if not os.path.isfile(full_path):
+        abort(404)
+
+    return send_file(full_path, as_attachment=True)
 
 def iniciar_flask():
     import webbrowser
